@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefWidth="500.0" spacing="15.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.fitness.Controller.ConsultaFormController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <children>
+        <Label fx:id="lblTitulo" text="Nueva Consulta para: Paciente">
+            <font>
+                <Font name="System Bold" size="18.0" />
+            </font>
+        </Label>
+
+        <Label text="Medidas del Paciente" style="-fx-font-weight: bold;" />
+        <GridPane hgap="10.0" vgap="10.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="NEVER" minWidth="120.0" />
+                <ColumnConstraints hgrow="SOMETIMES" />
+            </columnConstraints>
+            <children>
+                <Label text="Peso (kg):" />
+                <TextField fx:id="txtPeso" promptText="Ej: 75.5" GridPane.columnIndex="1" />
+                <Label text="Estatura (m):" GridPane.rowIndex="1" />
+                <TextField fx:id="txtEstatura" promptText="Ej: 1.80" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <Label text="Talla (ropa):" GridPane.rowIndex="2" />
+                <TextField fx:id="txtTallaRopa" promptText="Ej: M, 32" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <Label text="IMC Calculado:" GridPane.rowIndex="3" />
+                <Label fx:id="lblIMC" text="-" style="-fx-font-size: 14px; -fx-font-weight: bold;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <Label text="Observaciones (Medidas):" GridPane.rowIndex="4" />
+                <TextArea fx:id="txtObservacionesMedidas" prefHeight="60.0" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            </children>
+        </GridPane>
+
+        <Label text="Detalles de la Consulta" style="-fx-font-weight: bold;" />
+        <GridPane hgap="10.0" vgap="10.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="NEVER" minWidth="120.0" />
+                <ColumnConstraints hgrow="SOMETIMES" />
+            </columnConstraints>
+            <children>
+                <Label text="Asignar Dieta:" />
+                <ComboBox fx:id="cbDieta" prefWidth="250.0" promptText="Seleccione una dieta..." GridPane.columnIndex="1" />
+                <Label text="Observaciones (Consulta):" GridPane.rowIndex="1" />
+                <TextArea fx:id="txtObservacionesConsulta" prefHeight="80.0" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            </children>
+        </GridPane>
+
+        <HBox alignment="CENTER_RIGHT" spacing="10.0">
+            <children>
+                <Button fx:id="btnGuardar" onAction="#handleGuardar" style="-fx-background-color: #27ae60; -fx-text-fill: white;" text="Guardar Consulta" />
+                <Button onAction="#handleCancelar" text="Cancelar" />
+            </children>
+        </HBox>
+    </children>
+</VBox>

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.fitness.Controller.PacienteController">
+    <children>
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: #2c3e50;">
+            <children>
+                <Label text="Gestión de Pacientes" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+            </children>
+            <padding>
+                <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
+            </padding>
+        </HBox>
+
+        <!-- Barra de búsqueda y botones -->
+        <HBox alignment="CENTER_LEFT" spacing="15.0">
+            <children>
+                <TextField fx:id="txtBuscar" promptText="Buscar paciente por nombre o email..." prefWidth="300.0" />
+                <Button fx:id="btnBuscar" onAction="#buscarPaciente" text="Buscar" />
+                <Button fx:id="btnNuevo" onAction="#nuevoPaciente" style="-fx-background-color: #27ae60; -fx-text-fill: white;" text="Nuevo Paciente" />
+                <Button fx:id="btnEditar" onAction="#editarPaciente" style="-fx-background-color: #f39c12; -fx-text-fill: white;" text="Editar" />
+                <Button fx:id="btnEliminar" onAction="#eliminarPaciente" style="-fx-background-color: #e74c3c; -fx-text-fill: white;" text="Dar de Baja" />
+                <Button fx:id="btnLimpiar" onAction="#limpiarBusqueda" text="Limpiar" />
+                <!-- boton consulta -->
+
+                <HBox alignment="CENTER" prefWidth="200.0" spacing="10.0">
+                    <children>
+                        <Button fx:id="btnVerHistorial" mnemonicParsing="false" onAction="#verHistorialPaciente" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: #8e44ad; -fx-text-fill: white;" text="Ver Historial / Consultas">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Button>
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" top="10.0" />
+                    </padding>
+                </HBox>
+                <!-- ======================================================= -->
+            </children>
+            <padding>
+                <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+            </padding>
+        </HBox>
+
+        <!-- Contenido principal -->
+        <HBox VBox.vgrow="ALWAYS">
+            <children>
+                <!-- Tabla de pacientes -->
+                <VBox HBox.hgrow="ALWAYS">
+                    <children>
+                        <TableView fx:id="tablePacientes" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="colId" prefWidth="50.0" text="ID" />
+                                <TableColumn fx:id="colNombre" prefWidth="120.0" text="Nombre" />
+                                <TableColumn fx:id="colApellidos" prefWidth="120.0" text="Apellidos" />
+                                <TableColumn fx:id="colEmail" prefWidth="150.0" text="Email" />
+                                <TableColumn fx:id="colTelefono" prefWidth="100.0" text="Teléfono" />
+                                <TableColumn fx:id="colGenero" prefWidth="80.0" text="Género" />
+                                <TableColumn fx:id="colPeso" prefWidth="70.0" text="Peso" />
+                                <TableColumn fx:id="colEstatura" prefWidth="80.0" text="Estatura" />
+                                <TableColumn fx:id="colMedico" prefWidth="120.0" text="Médico" />
+                                <TableColumn fx:id="colEstatus" prefWidth="80.0" text="Estatus" />
+                            </columns>
+                        </TableView>
+                    </children>
+                    <padding>
+                        <Insets left="20.0" right="10.0" />
+                    </padding>
+                </VBox>
+
+                <!-- Panel de detalles -->
+                <VBox prefWidth="350.0" style="-fx-background-color: #ecf0f1;">
+                    <children>
+                        <Label text="Detalles del Paciente" style="-fx-font-weight: bold; -fx-font-size: 16px;">
+                            <padding>
+                                <Insets bottom="10.0" left="15.0" right="15.0" top="15.0" />
+                            </padding>
+                        </Label>
+
+                        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox spacing="10.0">
+                                    <children>
+                                        <!-- Fotografía -->
+                                        <VBox alignment="CENTER">
+                                            <children>
+                                                <ImageView fx:id="imgFotografia" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" style="-fx-border-color: #bdc3c7; -fx-border-width: 2;" />
+                                                <Button fx:id="btnCambiarFoto" onAction="#cambiarFotografia" text="Cambiar Foto" />
+                                            </children>
+                                        </VBox>
+
+                                        <!-- Información personal -->
+                                        <GridPane hgap="10.0" vgap="10.0">
+                                            <columnConstraints>
+                                                <ColumnConstraints hgrow="NEVER" minWidth="80.0" />
+                                                <ColumnConstraints hgrow="ALWAYS" />
+                                            </columnConstraints>
+                                            <rowConstraints>
+                                                <RowConstraints />
+                                                <RowConstraints />
+                                                <RowConstraints />
+                                                <RowConstraints />
+                                                <RowConstraints />
+                                                <RowConstraints />
+                                                <RowConstraints />
+                                                <RowConstraints />
+                                                <RowConstraints />
+                                                <RowConstraints />
+                                                <RowConstraints />
+                                            </rowConstraints>
+                                            <children>
+                                                <Label text="Nombre:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                                <TextField fx:id="txtNombre" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                                <Label text="Apellidos:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                                <TextField fx:id="txtApellidos" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                                <Label text="Fecha Nac.:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                                <DatePicker fx:id="dpFechaNacimiento" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                                <Label text="Género:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                                <ComboBox fx:id="cbGenero" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                                <Label text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                                <TextField fx:id="txtEmail" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                                                <Label text="Teléfono:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                                <TextField fx:id="txtTelefono" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                                                <Label text="Peso (kg):" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                                                <TextField fx:id="txtPeso" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+
+                                                <Label text="Estatura:" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                                                <HBox spacing="5.0" alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="7">
+                                                    <children>
+                                                        <ComboBox fx:id="cbMetros" prefWidth="80.0" promptText="m" />
+                                                        <Label text="."/>
+                                                        <ComboBox fx:id="cbCentimetros" prefWidth="80.0" promptText="cm" />
+                                                        <Label text="mts."/>
+                                                    </children>
+                                                </HBox>
+
+                                                <Label text="Talla:" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                                                <TextField fx:id="txtTalla" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+
+                                                <Label text="Domicilio:" GridPane.columnIndex="0" GridPane.rowIndex="10" />
+                                                <TextArea fx:id="txtDomicilio" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                                            </children>
+                                        </GridPane>
+
+                                        <!-- Botones de acción -->
+                                        <HBox alignment="CENTER" spacing="10.0">
+                                            <children>
+                                                <Button fx:id="btnGuardar" onAction="#guardarPaciente" style="-fx-background-color: #27ae60; -fx-text-fill: white;" text="Guardar" />
+                                                <Button fx:id="btnCancelar" onAction="#cancelarEdicion" text="Cancelar" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="15.0" left="15.0" right="15.0" top="5.0" />
+                                    </padding>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+    </children>
+</VBox>
