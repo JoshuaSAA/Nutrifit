@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
@@ -13,6 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.control.ComboBox?>
 <VBox prefWidth="500.0" spacing="15.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.fitness.Controller.ConsultaFormController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
@@ -34,7 +34,14 @@
                 <Label text="Peso (kg):" />
                 <TextField fx:id="txtPeso" promptText="Ej: 75.5" GridPane.columnIndex="1" />
                 <Label text="Estatura (m):" GridPane.rowIndex="1" />
-                <TextField fx:id="txtEstatura" promptText="Ej: 1.80" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <HBox spacing="5.0" alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <children>
+                        <ComboBox fx:id="cbMetros" prefWidth="80.0" promptText="m" />
+                        <Label text="."/>
+                        <ComboBox fx:id="cbCentimetros" prefWidth="80.0" promptText="cm" />
+                        <Label text="mts."/>
+                    </children>
+                </HBox>
                 <Label text="Talla (ropa):" GridPane.rowIndex="2" />
                 <TextField fx:id="txtTallaRopa" promptText="Ej: M, 32" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                 <Label text="IMC Calculado:" GridPane.rowIndex="3" />
@@ -51,8 +58,12 @@
                 <ColumnConstraints hgrow="SOMETIMES" />
             </columnConstraints>
             <children>
-                <Label text="Asignar Dieta:" />
-                <ComboBox fx:id="cbDieta" prefWidth="250.0" promptText="Seleccione una dieta..." GridPane.columnIndex="1" />
+                <Label text="Dieta Asignada:" />
+                <HBox spacing="5.0" alignment="CENTER_LEFT" GridPane.columnIndex="1">
+                    <TextField fx:id="txtDietaSeleccionada" editable="false" promptText="Ninguna dieta seleccionada" HBox.hgrow="ALWAYS" />
+                    <Button fx:id="btnSeleccionarDieta" onAction="#handleSeleccionarDieta" text="..." />
+                </HBox>
+
                 <Label text="Observaciones (Consulta):" GridPane.rowIndex="1" />
                 <TextArea fx:id="txtObservacionesConsulta" prefHeight="80.0" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             </children>

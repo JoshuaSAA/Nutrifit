@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="600.0" prefWidth="950.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.fitness.Controller.HistorialCompletoController">
+    <top>
+        <VBox alignment="CENTER_LEFT" style="-fx-background-color: #8e44ad;">
+            <children>
+                <Label fx:id="lblNombrePaciente" text="Historial Completo de: Paciente" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+            </children>
+            <padding>
+                <Insets bottom="15.0" left="20.0" right="20.0" top="15.0" />
+            </padding>
+        </VBox>
+    </top>
+    <left>
+        <VBox prefWidth="220.0" style="-fx-background-color: #f4f4f4;">
+            <children>
+                <Label text="Consultas Registradas">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                    <padding>
+                        <Insets bottom="5.0" />
+                    </padding>
+                </Label>
+                <ListView fx:id="listaConsultas" VBox.vgrow="ALWAYS" />
+            </children>
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </padding>
+        </VBox>
+    </left>
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: white;">
+            <content>
+                <VBox fx:id="panelDetalles" spacing="15.0">
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <Label fx:id="lblSeleccion" text="Seleccione una consulta de la lista para ver los detalles." style="-fx-font-style: italic; -fx-text-fill: grey;" />
+
+                        <TitledPane animated="false" text="Medidas de la Consulta" collapsible="false">
+                            <content>
+                                <GridPane hgap="10.0" vgap="8.0">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="NEVER" minWidth="100.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" />
+                                        <ColumnConstraints hgrow="NEVER" minWidth="100.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label text="Peso:" style="-fx-font-weight: bold;" />
+                                        <Label fx:id="lblPeso" text="-" GridPane.columnIndex="1" />
+                                        <Label text="Estatura:" style="-fx-font-weight: bold;" GridPane.columnIndex="2" />
+                                        <Label fx:id="lblEstatura" text="-" GridPane.columnIndex="3" />
+                                        <Label text="Talla (Ropa):" style="-fx-font-weight: bold;" GridPane.rowIndex="1" />
+                                        <Label fx:id="lblTallaRopa" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="IMC:" style="-fx-font-weight: bold;" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                        <Label fx:id="lblIMC" text="-" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                    </children>
+                                </GridPane>
+                            </content>
+                        </TitledPane>
+
+                        <TitledPane animated="false" text="Observaciones de las Medidas" collapsible="false">
+                            <content>
+                                <TextArea fx:id="txtAreaObservacionesMedidas" editable="false" prefHeight="80.0" wrapText="true" />
+                            </content>
+                        </TitledPane>
+
+                        <TitledPane animated="false" text="Dieta Asignada" collapsible="false">
+                            <content>
+                                <VBox spacing="8.0">
+                                    <children>
+                                        <GridPane hgap="10.0">
+                                            <columnConstraints>
+                                                <ColumnConstraints hgrow="NEVER" minWidth="100.0" />
+                                                <ColumnConstraints hgrow="SOMETIMES" />
+                                            </columnConstraints>
+                                            <children>
+                                                <Label text="Nombre Dieta:" style="-fx-font-weight: bold;" />
+                                                <Label fx:id="lblNombreDieta" text="-" GridPane.columnIndex="1" />
+                                                <Label text="Calorías:" style="-fx-font-weight: bold;" GridPane.rowIndex="1" />
+                                                <Label fx:id="lblCalorias" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                            </children>
+                                        </GridPane>
+                                        <Label text="Descripción y Alimentos:" style="-fx-font-weight: bold;" />
+                                        <TextArea fx:id="txtAreaDieta" editable="false" prefHeight="150.0" wrapText="true" />
+                                    </children>
+                                </VBox>
+                            </content>
+                        </TitledPane>
+
+                        <TitledPane animated="false" text="Observaciones del Médico" collapsible="false">
+                            <content>
+                                <TextArea fx:id="txtAreaObservaciones" editable="false" prefHeight="100.0" wrapText="true" />
+                            </content>
+                        </TitledPane>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+    <bottom>
+        <VBox alignment="CENTER" BorderPane.alignment="CENTER">
+            <children>
+                <Separator prefWidth="200.0" />
+                <Button fx:id="btnNuevaConsulta" onAction="#handleNuevaConsulta" prefHeight="40.0" prefWidth="250.0" style="-fx-background-color: #27ae60; -fx-text-fill: white;" text="Registrar Nueva Consulta">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                </Button>
+            </children>
+            <padding>
+                <Insets bottom="10.0" top="10.0" />
+            </padding>
+        </VBox>
+    </bottom>
+</BorderPane>

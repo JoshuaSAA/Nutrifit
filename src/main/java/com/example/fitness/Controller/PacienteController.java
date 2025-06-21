@@ -21,6 +21,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import com.example.fitness.model.GeneroItem;
+import javafx.util.Callback;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -98,6 +100,20 @@ public class PacienteController implements Initializable {
         pacientesList = FXCollections.observableArrayList();
         configurarTabla();
         configurarComboBoxes();
+        final Callback<DatePicker, DateCell> dayCellFactory =
+                datePicker -> new DateCell() {
+                    @Override
+                    public void updateItem(LocalDate item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        // Deshabilita y colorea las fechas posteriores a hoy.
+                        if (item.isAfter(LocalDate.now())) {
+                            setDisable(true);
+                            setStyle("-fx-background-color: #ffc0cb;"); // Estilo opcional para indicar que está deshabilitado
+                        }
+                    }
+                };
+        dpFechaNacimiento.setDayCellFactory(dayCellFactory);
         cargarPacientes();
         configurarListeners();
         deshabilitarEdicion();
@@ -466,24 +482,22 @@ public class PacienteController implements Initializable {
         alerta.showAndWait();
     }
 
+    // Dentro de PacienteController.java
+
     @FXML
     private void verHistorialPaciente() {
-        Paciente pacienteSeleccionado = tablePacientes.getSelectionModel().getSelectedItem();
-        if (pacienteSeleccionado == null) {
-
-            return;
-        }
+        if (pacienteSeleccionado == null) return;
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/fitness/historial-paciente-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/fitness/historial-completo-view.fxml"));
             Parent root = loader.load();
 
-            HistorialPacienteController controller = loader.getController();
-            controller.setPaciente(pacienteSeleccionado); // Le pasamos el paciente completo
+            HistorialCompletoController controller = loader.getController();
+            controller.setPaciente(pacienteSeleccionado);
 
             Stage stage = new Stage();
-            stage.setTitle("Historial de Consultas de " + pacienteSeleccionado.getNombre());
-            stage.initModality(Modality.APPLICATION_MODAL); // Bloquea la ventana de pacientes
+            stage.setTitle("Historial Completo de " + pacienteSeleccionado.getNombre());
+            stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(new Scene(root));
             stage.show();
 

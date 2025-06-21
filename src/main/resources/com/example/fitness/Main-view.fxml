@@ -20,9 +20,9 @@
                     </VBox.margin>
                 </Label>
                 <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleGestionarPacientes" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Gestionar Pacientes" />
-                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleGestionarCitas" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Gestionar Citas" />
+                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleGestionarCitas" style="-fx-background-color: #ff8c00; -fx-text-fill: white;" text="Gestionar Citas" />
+                <Button onAction="#handleGestionarDietas" maxWidth="1.7976931348623157E308" style="-fx-background-color: #16a085; -fx-text-fill: white;" text="Gestionar Dietas" />
 
-                <!-- Separador para el botón de cerrar sesión -->
                 <VBox VBox.vgrow="ALWAYS" />
 
                 <Button onAction="#handleCerrarSesion" maxWidth="1.7976931348623157E308" style="-fx-background-color: #c0392b; -fx-text-fill: white;" text="Cerrar Sesión" />

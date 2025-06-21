@@ -104,4 +104,16 @@ public class HistorialMedidasDAO {
         h.setObservaciones(rs.getString("observaciones"));
         return h;
     }
+
+    public HistorialMedidas obtenerPorIdConsulta(int idConsulta) throws SQLException {
+        String sql = "SELECT * FROM historial_medidas WHERE id_consulta = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idConsulta);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return mapearDesdeResultSet(rs);
+            }
+        }
+        return null;
+    }
 }

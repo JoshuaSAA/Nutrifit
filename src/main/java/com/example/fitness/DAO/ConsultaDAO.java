@@ -116,7 +116,21 @@ public class ConsultaDAO {
         c.setFechaRegistro(rs.getTimestamp("fecha_registro").toLocalDateTime());
         c.setFechaModificacion(rs.getTimestamp("fecha_modificacion").toLocalDateTime());
 
-        // Puedes agregar carga de paciente y dieta aquí si tienes sus DAOs
         return c;
+    }
+
+
+    public List<Consulta> obtenerPorPaciente(int idPaciente) throws SQLException {
+        List<Consulta> lista = new ArrayList<>();
+        String sql = "SELECT * FROM consultas WHERE id_paciente = ? ORDER BY fecha_consulta DESC, hora_consulta DESC";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idPaciente);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapConsulta(rs)); // Reutilizamos tu método mapConsulta
+                }
+            }
+        }
+        return lista;
     }
 }

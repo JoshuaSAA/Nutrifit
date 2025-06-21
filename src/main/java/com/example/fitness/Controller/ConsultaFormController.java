@@ -1,46 +1,57 @@
 package com.example.fitness.Controller;
 
 import com.example.fitness.DAO.ConsultaDAO;
-import com.example.fitness.DAO.DietaDAO;
 import com.example.fitness.DAO.HistorialMedidasDAO;
 import com.example.fitness.model.Consulta;
 import com.example.fitness.model.Dieta;
 import com.example.fitness.model.HistorialMedidas;
 import com.example.fitness.model.Paciente;
 import database.DatabaseConnection;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ConsultaFormController {
 
+    // --- Controles FXML ---
     @FXML private Label lblTitulo;
     @FXML private TextField txtPeso;
-    @FXML private TextField txtEstatura;
+    @FXML private ComboBox<Integer> cbMetros;
+    @FXML private ComboBox<Integer> cbCentimetros;
     @FXML private TextField txtTallaRopa;
     @FXML private Label lblIMC;
     @FXML private TextArea txtObservacionesConsulta;
     @FXML private TextArea txtObservacionesMedidas;
-    @FXML private ComboBox<Dieta> cbDieta;
+    @FXML private TextField txtDietaSeleccionada;
     @FXML private Button btnGuardar;
+    @FXML private Button btnSeleccionarDieta;
 
+    // --- Clases y Datos ---
     private Paciente pacienteActual;
     private ConsultaDAO consultaDAO;
     private HistorialMedidasDAO historialMedidasDAO;
-    private DietaDAO dietaDAO;
+    private Dieta dietaSeleccionada;
 
     public ConsultaFormController() {
         this.consultaDAO = new ConsultaDAO(DatabaseConnection.getInstance().getConnection());
         this.historialMedidasDAO = new HistorialMedidasDAO(DatabaseConnection.getInstance().getConnection());
-        this.dietaDAO = new DietaDAO(DatabaseConnection.getInstance().getConnection());
     }
 
     public void setPaciente(Paciente paciente) {
@@ -50,25 +61,65 @@ public class ConsultaFormController {
 
     @FXML
     public void initialize() {
+        // --- VALIDACIÓN ROBUSTA PARA EL PESO ---
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String text = change.getControlNewText();
+            if (text.matches("([0-9]*[.])?[0-9]*")) {
+                return change;
+            }
+            return null;
+        };
+        TextFormatter<String> textFormatter = new TextFormatter<>(filter);
+        txtPeso.setTextFormatter(textFormatter);
+
+        // --- POBLAR COMBOBOXES DE ALTURA ---
+        ObservableList<Integer> metros = FXCollections.observableArrayList(0, 1, 2);
+        ObservableList<Integer> centimetros = FXCollections.observableArrayList(
+                IntStream.range(0, 100).boxed().collect(Collectors.toList())
+        );
+        cbMetros.setItems(metros);
+        cbCentimetros.setItems(centimetros);
+
+        // --- LISTENERS PARA CALCULAR IMC ---
         txtPeso.textProperty().addListener((obs, oldVal, newVal) -> calcularIMC());
-        txtEstatura.textProperty().addListener((obs, oldVal, newVal) -> calcularIMC());
-        cargarDietas();
+        cbMetros.valueProperty().addListener((obs, oldVal, newVal) -> calcularIMC());
+        cbCentimetros.valueProperty().addListener((obs, oldVal, newVal) -> calcularIMC());
     }
 
-    private void cargarDietas() {
+    @FXML
+    private void handleSeleccionarDieta() {
         try {
-            List<Dieta> dietas = dietaDAO.listarTodas();
-            cbDieta.getItems().setAll(dietas);
-        } catch (SQLException e) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/fitness/seleccionar-dieta-view.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Seleccionar una Dieta");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+            SeleccionarDietaController controller = loader.getController();
+            stage.showAndWait();
+            Dieta dieta = controller.getDietaSeleccionada();
+            if (dieta != null) {
+                this.dietaSeleccionada = dieta;
+                txtDietaSeleccionada.setText(dieta.getNombreDieta());
+            }
+        } catch (IOException e) {
             e.printStackTrace();
-            mostrarAlerta("Error de Carga", "No se pudieron cargar las dietas desde la base de datos.", Alert.AlertType.ERROR);
+            mostrarAlerta("Error de Carga", "No se pudo abrir el selector de dietas.", Alert.AlertType.ERROR);
         }
     }
 
     private void calcularIMC() {
         try {
+            if (txtPeso.getText().isEmpty() || cbMetros.getValue() == null || cbCentimetros.getValue() == null) {
+                lblIMC.setText("-");
+                return;
+            }
             BigDecimal peso = new BigDecimal(txtPeso.getText());
-            BigDecimal estatura = new BigDecimal(txtEstatura.getText());
+            Integer metrosVal = cbMetros.getValue();
+            Integer centimetrosVal = cbCentimetros.getValue();
+            String estaturaStr = metrosVal + "." + String.format("%02d", centimetrosVal);
+            BigDecimal estatura = new BigDecimal(estaturaStr);
+
             if (estatura.compareTo(BigDecimal.ZERO) > 0) {
                 BigDecimal imc = peso.divide(estatura.multiply(estatura), 2, RoundingMode.HALF_UP);
                 lblIMC.setText(imc.toString());
@@ -80,43 +131,40 @@ public class ConsultaFormController {
 
     @FXML
     private void handleGuardar() {
-        try {
-            Dieta dietaSeleccionada = cbDieta.getValue();
-            if (dietaSeleccionada == null) {
-                mostrarAlerta("Datos incompletos", "Por favor, seleccione una dieta para el paciente.", Alert.AlertType.WARNING);
-                return;
-            }
+        if (dietaSeleccionada == null || txtPeso.getText().isEmpty() || cbMetros.getValue() == null || cbCentimetros.getValue() == null) {
+            mostrarAlerta("Datos incompletos", "Peso, estatura y una dieta seleccionada son obligatorios.", Alert.AlertType.WARNING);
+            return;
+        }
 
-            // 1. Crear y guardar la Consulta principal
+        try {
+            BigDecimal peso = new BigDecimal(txtPeso.getText());
+            Integer metros = cbMetros.getValue();
+            Integer centimetros = cbCentimetros.getValue();
+            String estaturaStr = metros + "." + String.format("%02d", centimetros);
+            BigDecimal estatura = new BigDecimal(estaturaStr);
+            BigDecimal imc = new BigDecimal(lblIMC.getText());
+
             Consulta nuevaConsulta = new Consulta();
             nuevaConsulta.setIdPaciente(pacienteActual.getIdPaciente());
             nuevaConsulta.setFechaConsulta(LocalDate.now());
             nuevaConsulta.setHoraConsulta(LocalTime.now());
             nuevaConsulta.setObservaciones(txtObservacionesConsulta.getText());
             nuevaConsulta.setIdDieta(dietaSeleccionada.getIdDieta());
-
-
             nuevaConsulta.setEstatus("Finalizada");
-
-
             nuevaConsulta.setFechaRegistro(LocalDateTime.now());
             nuevaConsulta.setFechaModificacion(LocalDateTime.now());
-
-            BigDecimal peso = new BigDecimal(txtPeso.getText());
-            BigDecimal imc = new BigDecimal(lblIMC.getText());
             nuevaConsulta.setPesoActual(peso);
             nuevaConsulta.setTallaActual(txtTallaRopa.getText());
             nuevaConsulta.setImc(imc);
 
             consultaDAO.insertar(nuevaConsulta);
 
-            // 2. Crear y guardar el Historial de Medidas
             HistorialMedidas nuevasMedidas = new HistorialMedidas();
             nuevasMedidas.setIdConsulta(nuevaConsulta.getIdConsulta());
             nuevasMedidas.setIdPaciente(pacienteActual.getIdPaciente());
             nuevasMedidas.setFechaMedicion(LocalDate.now());
             nuevasMedidas.setPeso(peso);
-            nuevasMedidas.setEstatura(new BigDecimal(txtEstatura.getText()));
+            nuevasMedidas.setEstatura(estatura);
             nuevasMedidas.setTalla(txtTallaRopa.getText());
             nuevasMedidas.setImc(imc);
             nuevasMedidas.setObservaciones(txtObservacionesMedidas.getText());
@@ -130,7 +178,7 @@ public class ConsultaFormController {
             e.printStackTrace();
             mostrarAlerta("Error de Base de Datos", "No se pudo guardar la información. Razón: " + e.getMessage(), Alert.AlertType.ERROR);
         } catch (NumberFormatException e) {
-            mostrarAlerta("Datos Inválidos", "Por favor, ingrese valores numéricos válidos para peso y estatura.", Alert.AlertType.WARNING);
+            mostrarAlerta("Datos Inválidos", "Por favor, ingrese un valor numérico válido para el peso.", Alert.AlertType.WARNING);
         }
     }
 

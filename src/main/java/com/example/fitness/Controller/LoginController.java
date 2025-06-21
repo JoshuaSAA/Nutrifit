@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 
 public class LoginController {
 
@@ -36,25 +37,27 @@ public class LoginController {
             return;
         }
 
-        Medico medicoLogueado = medicoDAO.authenticate(usuario, contrasenaPlana);
+        try {
+            Medico medicoLogueado = medicoDAO.authenticate(usuario, contrasenaPlana);
 
-        if (medicoLogueado != null) {
-            System.out.println("Login exitoso para: " + medicoLogueado.getNombre());
+            if (medicoLogueado != null) {
+                System.out.println("Login exitoso para: " + medicoLogueado.getNombre());
 
-
-
-            if ("ADMIN001".equals(medicoLogueado.getNumeroPersonal())) {
-                System.out.println("Usuario reconocido como Administrador. Abriendo panel de admin...");
-                abrirVentanaAdmin(medicoLogueado);
+                if ("ADMIN001".equals(medicoLogueado.getNumeroPersonal())) {
+                    System.out.println("Usuario reconocido como Administrador. Abriendo panel de admin...");
+                    abrirVentanaAdmin(medicoLogueado);
+                } else {
+                    System.out.println("Usuario reconocido como Médico. Abriendo panel principal...");
+                    abrirVentanaPrincipal(medicoLogueado);
+                }
             } else {
-                System.out.println("Usuario reconocido como Médico. Abriendo panel principal...");
-                abrirVentanaPrincipal(medicoLogueado);
+                System.out.println("Fallo de autenticación para usuario: " + usuario);
+                mostrarAlerta(Alert.AlertType.ERROR, "Error de Autenticación", "El usuario o la contraseña son incorrectos.");
             }
 
-
-        } else {
-            System.out.println("Fallo de autenticación para usuario: " + usuario);
-            mostrarAlerta(Alert.AlertType.ERROR, "Error de Autenticación", "El usuario o la contraseña son incorrectos.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mostrarAlerta(Alert.AlertType.ERROR, "Error de Conexión", "No se pudo conectar a la base de datos. Verifique su conexión y contacte al administrador.");
         }
     }
 

@@ -2,44 +2,35 @@ package com.example.fitness.Controller;
 
 import com.example.fitness.DAO.MedicoDAO;
 import com.example.fitness.model.Medico;
-import javafx.beans.property.SimpleStringProperty;
+import com.example.fitness.model.GeneroItem; // Asegúrate de tener este import
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import com.example.fitness.model.GeneroItem;
+import javafx.util.Callback;
 
-
+import java.sql.SQLException; // <-- IMPORTANTE AÑADIR/VERIFICAR
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 public class MedicoController {
 
-    // Controles de la interfaz
+    // --- Controles de la interfaz (Tu código) ---
     @FXML private TableView<Medico> tablaMedicos;
     @FXML private TableColumn<Medico, Integer> colId;
-    @FXML private TableColumn<Medico, String> colNombre;
-    @FXML private TableColumn<Medico, String> colApellidos;
-    @FXML private TableColumn<Medico, String> colNumeroPersonal;
-    @FXML private TableColumn<Medico, String> colCedula;
-    @FXML private TableColumn<Medico, String> colEstatus;
-
-    @FXML private TextField txtNombre;
-    @FXML private TextField txtApellidos;
+    @FXML private TableColumn<Medico, String> colNombre, colApellidos, colNumeroPersonal, colCedula, colEstatus;
+    @FXML private TextField txtNombre, txtApellidos, txtDomicilio, txtNumeroPersonal, txtCedula;
     @FXML private DatePicker dpFechaNacimiento;
-    @FXML private ComboBox<GeneroItem> cbGenero; // <-- TIPO CORREGIDO
-    @FXML private TextField txtDomicilio;
-    @FXML private TextField txtNumeroPersonal;
-    @FXML private TextField txtCedula;
+    @FXML private ComboBox<GeneroItem> cbGenero;
     @FXML private PasswordField txtContrasena;
     @FXML private Label lblContrasena;
 
+    // --- Clases y Datos (Tu código) ---
     private MedicoDAO medicoDAO;
     private ObservableList<Medico> medicosList;
     private Medico medicoSeleccionado;
-
     private final ObservableList<GeneroItem> generos = FXCollections.observableArrayList(
             new GeneroItem("M", "Masculino"),
             new GeneroItem("F", "Femenino"),
@@ -48,18 +39,29 @@ public class MedicoController {
 
     @FXML
     public void initialize() {
+        // Tu initialize se queda igual
         medicoDAO = new MedicoDAO();
         medicosList = FXCollections.observableArrayList();
-
         configurarTabla();
         cbGenero.setItems(generos);
+        final Callback<DatePicker, DateCell> dayCellFactory = datePicker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item.isAfter(LocalDate.now())) {
+                    setDisable(true);
+                    setStyle("-fx-background-color: #ffc0cb;");
+                }
+            }
+        };
+        dpFechaNacimiento.setDayCellFactory(dayCellFactory);
         cargarMedicos();
-
         tablaMedicos.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldVal, newVal) -> mostrarDetallesMedico(newVal));
     }
 
     private void configurarTabla() {
+        // Tu configurarTabla se queda igual
         colId.setCellValueFactory(new PropertyValueFactory<>("idMedico"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colApellidos.setCellValueFactory(new PropertyValueFactory<>("apellidos"));
@@ -70,16 +72,21 @@ public class MedicoController {
     }
 
     private void cargarMedicos() {
-        medicosList.setAll(medicoDAO.readAll());
+        try {
+            medicosList.setAll(medicoDAO.readAll());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mostrarAlerta("Error de Carga", "No se pudieron cargar los médicos de la base de datos.", Alert.AlertType.ERROR);
+        }
     }
 
     private void mostrarDetallesMedico(Medico medico) {
+        // Tu mostrarDetallesMedico se queda igual
         medicoSeleccionado = medico;
         if (medico != null) {
             txtNombre.setText(medico.getNombre());
             txtApellidos.setText(medico.getApellidos());
             dpFechaNacimiento.setValue(medico.getFechaNacimiento());
-            // Lógica corregida para seleccionar el GeneroItem correcto
             Optional<GeneroItem> generoSeleccionado = generos.stream()
                     .filter(item -> item.getCodigo().equals(medico.getGenero()))
                     .findFirst();
@@ -87,8 +94,6 @@ public class MedicoController {
             txtDomicilio.setText(medico.getDomicilio());
             txtNumeroPersonal.setText(medico.getNumeroPersonal());
             txtCedula.setText(medico.getCedulaProfesional());
-            // Por seguridad, no mostramos la contraseña.
-            // La hacemos opcional al editar.
             txtContrasena.setVisible(false);
             lblContrasena.setVisible(false);
             txtContrasena.clear();
@@ -98,6 +103,7 @@ public class MedicoController {
     }
 
     private void limpiarFormulario() {
+        // Tu limpiarFormulario se queda igual
         medicoSeleccionado = null;
         txtNombre.clear();
         txtApellidos.clear();
@@ -119,28 +125,24 @@ public class MedicoController {
 
     @FXML
     private void handleGuardar() {
-        // Validación básica
-        if (txtNombre.getText().isEmpty() || txtNumeroPersonal.getText().isEmpty()) {
-            mostrarAlerta("Error de Validación", "El nombre y el número de personal son obligatorios.", Alert.AlertType.WARNING);
+        // Tus validaciones se quedan igual
+        if (txtNombre.getText().isEmpty() || txtNumeroPersonal.getText().isEmpty() || dpFechaNacimiento.getValue() == null || cbGenero.getValue() == null) {
+            mostrarAlerta("Error de Validación", "Todos los campos son obligatorios.", Alert.AlertType.WARNING);
             return;
         }
-
         LocalDate fechaNacimiento = dpFechaNacimiento.getValue();
         if (fechaNacimiento.plusYears(18).isAfter(LocalDate.now())) {
-            mostrarAlerta("Error de Validación", "El médico debe tener al menos 18 años de edad.", Alert.AlertType.WARNING);
+            mostrarAlerta("Error de Validación", "El médico debe tener al menos 18 años.", Alert.AlertType.WARNING);
             return;
         }
-
-        // Si es un médico nuevo, la contraseña es obligatoria
-        if (medicoSeleccionado == null && txtContrasena.getText().isEmpty()) {
+        boolean esNuevo = (medicoSeleccionado == null);
+        if (esNuevo && txtContrasena.getText().isEmpty()) {
             mostrarAlerta("Error de Validación", "La contraseña es obligatoria para nuevos médicos.", Alert.AlertType.WARNING);
             return;
         }
 
-        // Crear o actualizar el objeto Medico
-        boolean esNuevo = (medicoSeleccionado == null);
+        // Tu lógica de creación de objeto se queda igual
         Medico medico = esNuevo ? new Medico() : medicoSeleccionado;
-
         medico.setNombre(txtNombre.getText());
         medico.setApellidos(txtApellidos.getText());
         medico.setFechaNacimiento(dpFechaNacimiento.getValue());
@@ -148,27 +150,30 @@ public class MedicoController {
         medico.setDomicilio(txtDomicilio.getText());
         medico.setNumeroPersonal(txtNumeroPersonal.getText());
         medico.setCedulaProfesional(txtCedula.getText());
-        medico.setEstatus("Activo"); // Por defecto
-
-        // La contraseña solo se asigna si es un médico nuevo
+        medico.setEstatus("Activo");
         if (esNuevo) {
             medico.setContrasena(txtContrasena.getText());
         }
 
-        // Guardar en la DB
-        boolean exito;
-        if (esNuevo) {
-            exito = medicoDAO.create(medico);
-        } else {
-            exito = medicoDAO.update(medico);
-        }
-
-        if (exito) {
-            mostrarAlerta("Éxito", "Médico guardado correctamente.", Alert.AlertType.INFORMATION);
-            cargarMedicos();
-            limpiarFormulario();
-        } else {
-            mostrarAlerta("Error", "No se pudo guardar el médico en la base de datos.", Alert.AlertType.ERROR);
+        // =============================================================
+        // LÓGICA DE GUARDADO ACTUALIZADA CON MANEJO DE ERRORES
+        // =============================================================
+        try {
+            boolean exito = esNuevo ? medicoDAO.create(medico) : medicoDAO.update(medico);
+            if (exito) {
+                mostrarAlerta("Éxito", "Médico guardado correctamente.", Alert.AlertType.INFORMATION);
+                cargarMedicos();
+                limpiarFormulario();
+            } else {
+                mostrarAlerta("Aviso", "No se realizaron cambios en la base de datos.", Alert.AlertType.WARNING);
+            }
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 1062) { // Código para "Entrada duplicada" en MySQL
+                mostrarAlerta("Error de Duplicado", "Ya existe un médico con ese Número de Personal o Cédula Profesional.", Alert.AlertType.ERROR);
+            } else {
+                e.printStackTrace();
+                mostrarAlerta("Error de Base de Datos", "No se pudo guardar el médico. Razón: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
         }
     }
 
@@ -178,20 +183,23 @@ public class MedicoController {
             mostrarAlerta("Sin selección", "Por favor, seleccione un médico para dar de baja.", Alert.AlertType.WARNING);
             return;
         }
-
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Confirmar Baja");
         confirmacion.setHeaderText("¿Está seguro de que desea dar de baja al Dr(a). " + medicoSeleccionado.getNombre() + "?");
         confirmacion.setContentText("Esta acción cambiará su estatus a 'Inactivo'.");
-
         Optional<ButtonType> resultado = confirmacion.showAndWait();
         if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
-            if (medicoDAO.delete(medicoSeleccionado.getIdMedico())) {
-                mostrarAlerta("Éxito", "El médico ha sido dado de baja.", Alert.AlertType.INFORMATION);
-                cargarMedicos();
-                limpiarFormulario();
-            } else {
-                mostrarAlerta("Error", "No se pudo dar de baja al médico.", Alert.AlertType.ERROR);
+            try {
+                if (medicoDAO.delete(medicoSeleccionado.getIdMedico())) {
+                    mostrarAlerta("Éxito", "El médico ha sido dado de baja.", Alert.AlertType.INFORMATION);
+                    cargarMedicos();
+                    limpiarFormulario();
+                } else {
+                    mostrarAlerta("Error", "No se pudo dar de baja al médico.", Alert.AlertType.ERROR);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                mostrarAlerta("Error de Base de Datos", "Ocurrió un error al intentar dar de baja al médico.", Alert.AlertType.ERROR);
             }
         }
     }

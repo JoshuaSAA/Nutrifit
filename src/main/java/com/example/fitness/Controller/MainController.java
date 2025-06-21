@@ -50,6 +50,14 @@ public class MainController {
         System.out.println("Cargando vista de consultas...");
         //cargarVista("consulta-form-view.fxml");
     }
+
+    @FXML
+    private void handleGestionarDietas() {
+        System.out.println("Cargando vista para gestionar dietas...");
+        cargarVista("dietas-view.fxml");
+    }
+
+
     @FXML
     private void handleCerrarSesion() {
         try {
